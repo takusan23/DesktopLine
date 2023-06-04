@@ -5,8 +5,6 @@ using DesktopLine.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using System.Diagnostics;
-using System.Drawing;
 using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -24,6 +22,9 @@ namespace DesktopLine
         Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController acrylicController;
         Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration configurationSource;
 
+        KeybordHook keybordHook;
+        MouseHook mouseHook;
+
         /// <summary>
         /// 現在のマウス座標
         /// </summary>
@@ -37,19 +38,62 @@ namespace DesktopLine
         public MainWindow()
         {
             InitializeComponent();
+
             // タイトルバーなどを消す
             ExtendsContentIntoTitleBar = true;
             // ウィンドウサイズ
             WindowTool.SetWindowSize(this, 500, 800);
+            WindowTool.SetWindowTopMost(this);
+
             // アクリル素材（マイカは Win11 以降？）を適用する
             wsdqHelper = new WindowsSystemDispatcherQueueHelper();
             wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
             SetBackdrop();
 
+            // Hook
+            keybordHook = new();
+            mouseHook = new();
+            setupHook();
+
             // マウス操作移動時のイベント
             layoutRoot.PointerPressed += LayoutRoot_PointerPressed;
             layoutRoot.PointerMoved += LayoutRoot_PointerMoved;
             layoutRoot.PointerReleased += LayoutRoot_PointerReleased;
+        }
+
+        private void setupHook()
+        {
+            var appWindow = WindowTool.GetAppWindow(this);
+            var isMouseDown = false;
+
+            keybordHook.onKeyDown += (int keycode) =>
+            {
+                // マウスを押した状態で Windowsキー を押したとき
+                if (keycode == WindowsApiTool.VK_LWIN && isMouseDown)
+                {
+                    // 表示されていない場合は出す
+                    if (!appWindow.IsVisible)
+                    {
+                        appWindow.Show();
+                    }
+                }
+            };
+            keybordHook.onKeyUp += (int keycode) =>
+            {
+                // 離したら閉じる
+                if (keycode == WindowsApiTool.VK_LWIN)
+                {
+                    appWindow.Hide();
+                }
+            };
+            mouseHook.onMouseDown += () =>
+            {
+                isMouseDown = true;
+            };
+            mouseHook.onMouseUp += () =>
+            {
+                isMouseDown = false;
+            };
         }
 
         private void SetBackdrop()
@@ -108,6 +152,9 @@ namespace DesktopLine
             }
             this.Activated -= Window_Activated;
             configurationSource = null;
+
+            keybordHook.UnhookWindowsHookEx();
+            mouseHook.UnhookWindowsHookEx();
         }
 
         /// <summary>
