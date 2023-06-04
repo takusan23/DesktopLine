@@ -16,8 +16,7 @@
         </Grid.RowDefinitions>
 
         <Grid Grid.Row="0">
-            <Grid Name="layoutRoot" Background="Transparent" PointerMoved="DrawLineCanavs_PointerMoved" >
-            </Grid>
+            <Grid Name="layoutRoot" Background="Transparent" />
         </Grid>
     </Grid>
 </Window>

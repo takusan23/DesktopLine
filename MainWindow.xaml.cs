@@ -25,9 +25,14 @@ namespace DesktopLine
         Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration configurationSource;
 
         /// <summary>
-        /// 一つ前のマウス座標
+        /// 現在のマウス座標
         /// </summary>
-        Windows.Foundation.Point? currentPoint = null;
+        Windows.Foundation.Point? currentPosition = null;
+
+        /// <summary>
+        /// 最初のマウス座標
+        /// </summary>
+        Windows.Foundation.Point? startPosition = null;
 
         public MainWindow()
         {
@@ -35,11 +40,16 @@ namespace DesktopLine
             // タイトルバーなどを消す
             ExtendsContentIntoTitleBar = true;
             // ウィンドウサイズ
-            WindowTool.SetWindowSize(this, 300, 300);
+            WindowTool.SetWindowSize(this, 500, 800);
             // アクリル素材（マイカは Win11 以降？）を適用する
             wsdqHelper = new WindowsSystemDispatcherQueueHelper();
             wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
             SetBackdrop();
+
+            // マウス操作移動時のイベント
+            layoutRoot.PointerPressed += LayoutRoot_PointerPressed;
+            layoutRoot.PointerMoved += LayoutRoot_PointerMoved;
+            layoutRoot.PointerReleased += LayoutRoot_PointerReleased;
         }
 
         private void SetBackdrop()
@@ -100,21 +110,30 @@ namespace DesktopLine
             configurationSource = null;
         }
 
+        /// <summary>
+        /// クリックを押したら呼ばれる
+        /// </summary>
+        private void LayoutRoot_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(layoutRoot);
+            var position = point.Position;
+            startPosition = position;
+        }
 
         /// <summary>
         /// クリックを押し続けている間呼ばれる
         /// </summary>
-        private void DrawLineCanavs_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void LayoutRoot_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            var pointer = e.Pointer;
+            // 線を描画する
             var point = e.GetCurrentPoint(layoutRoot);
             var position = point.Position;
-            if (point.Properties.IsLeftButtonPressed && currentPoint != null)
+            if (point.Properties.IsLeftButtonPressed && currentPosition != null)
             {
                 var line = new Line()
                 {
-                    X1 = currentPoint.Value.X,
-                    Y1 = currentPoint.Value.Y,
+                    X1 = currentPosition.Value.X,
+                    Y1 = currentPosition.Value.Y,
                     X2 = position.X,
                     Y2 = position.Y,
                     StrokeThickness = 4,
@@ -122,11 +141,28 @@ namespace DesktopLine
                 };
 
                 layoutRoot.Children.Add(line);
-                Debug.WriteLine("DrawLineCanavs.Children.Add(line);");
             }
-            currentPoint = position;
+            currentPosition = position;
+        }
+
+        /// <summary>
+        /// クリックが離れたら呼ばれる
+        /// </summary>
+        private void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        {
+            var point = e.GetCurrentPoint(layoutRoot);
+
+            if (startPosition.Value.X < point.Position.X)
+            {
+                // 開始位置より右側
+                Debug.WriteLine("Win + -> ");
+            }
+            else
+            {
+                // 開始位置より左側
+                Debug.WriteLine("Win + <- ");
+            }
         }
 
     }
-
 }
