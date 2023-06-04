@@ -151,16 +151,15 @@ namespace DesktopLine
         private void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(layoutRoot);
-
             if (startPosition.Value.X < point.Position.X)
             {
                 // 開始位置より右側
-                Debug.WriteLine("Win + -> ");
+                VirtualDesktopSwitcher.sendSwitchKeyEvent(VirtualDesktopSwitcher.Direction.Right);
             }
             else
             {
                 // 開始位置より左側
-                Debug.WriteLine("Win + <- ");
+                VirtualDesktopSwitcher.sendSwitchKeyEvent(VirtualDesktopSwitcher.Direction.Left);
             }
         }
 

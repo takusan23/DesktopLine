@@ -81,9 +81,13 @@ namespace DesktopLine.Tool
 
         public const int KEYEVENTF_EXTENDEDKEY = 0x1;
 
-        public const int VK_SNAPSHOT = 0x2C;
+        public const int VK_CONTROL = 0x11;
 
         public const int VK_LWIN = 0x5B;
+
+        public const int VK_LEFT = 0x25;
+
+        public const int VK_RIGHT = 0x27;
 
         public const int SWP_NOSIZE = 0x0001;
 
