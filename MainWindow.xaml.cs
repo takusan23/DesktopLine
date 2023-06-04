@@ -91,7 +91,6 @@ namespace DesktopLine
                         if (!appWindow.IsVisible)
                         {
                             appWindow.Show();
-                            keybordHook.isBlocking = false;
                         }
                     }
                 }
@@ -104,10 +103,6 @@ namespace DesktopLine
                 {
                     startDownTime = null;
                     appWindow.Hide();
-                    if (isShow)
-                    {
-                        keybordHook.isBlocking = false;
-                    }
                 }
             };
         }
@@ -212,7 +207,6 @@ namespace DesktopLine
         /// </summary>
         private async void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            await Task.Delay(100);
             var point = e.GetCurrentPoint(layoutRoot);
             if (startPosition.Value.X < point.Position.X)
             {
