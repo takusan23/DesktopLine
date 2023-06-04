@@ -5,6 +5,9 @@ using DesktopLine.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
 using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -22,8 +25,10 @@ namespace DesktopLine
         Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController acrylicController;
         Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration configurationSource;
 
-        KeybordHook keybordHook;
-        MouseHook mouseHook;
+        /// <summary>
+        /// キーボードの入力をフックする
+        /// </summary>
+        KeybordHook keybordHook = null;
 
         /// <summary>
         /// 現在のマウス座標
@@ -52,7 +57,6 @@ namespace DesktopLine
 
             // Hook
             keybordHook = new();
-            mouseHook = new();
             setupHook();
 
             // マウス操作移動時のイベント
@@ -61,38 +65,50 @@ namespace DesktopLine
             layoutRoot.PointerReleased += LayoutRoot_PointerReleased;
         }
 
+        /// <summary>
+        /// SetWindowsHookEx でフックしたイベントを処理する
+        /// </summary>
         private void setupHook()
         {
             var appWindow = WindowTool.GetAppWindow(this);
-            var isMouseDown = false;
+
+            // Windowsキーを押した時間
+            DateTime? startDownTime = null;
 
             keybordHook.onKeyDown += (int keycode) =>
             {
-                // マウスを押した状態で Windowsキー を押したとき
-                if (keycode == WindowsApiTool.VK_LWIN && isMouseDown)
+                // Windowsキーを押しているか
+                if (keycode == WindowsApiTool.VK_LWIN)
                 {
-                    // 表示されていない場合は出す
-                    if (!appWindow.IsVisible)
+                    if (startDownTime == null)
                     {
-                        appWindow.Show();
+                        startDownTime = DateTime.Now;
+                    }
+                    // 500ms 経ったら
+                    if ((DateTime.Now - startDownTime.Value).TotalMilliseconds >= 500)
+                    {
+                        // 表示されていない場合は出す
+                        if (!appWindow.IsVisible)
+                        {
+                            appWindow.Show();
+                            keybordHook.isBlocking = false;
+                        }
                     }
                 }
             };
             keybordHook.onKeyUp += (int keycode) =>
             {
+                var isShow = appWindow.IsVisible;
                 // 離したら閉じる
                 if (keycode == WindowsApiTool.VK_LWIN)
                 {
+                    startDownTime = null;
                     appWindow.Hide();
+                    if (isShow)
+                    {
+                        keybordHook.isBlocking = false;
+                    }
                 }
-            };
-            mouseHook.onMouseDown += () =>
-            {
-                isMouseDown = true;
-            };
-            mouseHook.onMouseUp += () =>
-            {
-                isMouseDown = false;
             };
         }
 
@@ -154,7 +170,6 @@ namespace DesktopLine
             configurationSource = null;
 
             keybordHook.UnhookWindowsHookEx();
-            mouseHook.UnhookWindowsHookEx();
         }
 
         /// <summary>
@@ -195,8 +210,9 @@ namespace DesktopLine
         /// <summary>
         /// クリックが離れたら呼ばれる
         /// </summary>
-        private void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
+            await Task.Delay(100);
             var point = e.GetCurrentPoint(layoutRoot);
             if (startPosition.Value.X < point.Position.X)
             {
@@ -208,6 +224,8 @@ namespace DesktopLine
                 // 開始位置より左側
                 VirtualDesktopSwitcher.sendSwitchKeyEvent(VirtualDesktopSwitcher.Direction.Left);
             }
+            // 描いた内容を消す
+            layoutRoot.Children.Clear();
         }
 
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 
@@ -23,12 +24,14 @@ namespace DesktopLine.Tool
         /// <summary>
         /// キーボードを押したら呼ばれる
         /// </summary>
-        public Action<int> onKeyDown;
+        public Action<int> onKeyDown = null;
 
         /// <summary>
         /// キーボードを離したら呼ばれる
         /// </summary>
-        public Action<int> onKeyUp;
+        public Action<int> onKeyUp = null;
+
+        public bool isBlocking = false;
 
         public KeybordHook()
         {
@@ -44,18 +47,26 @@ namespace DesktopLine.Tool
         private IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
             var key = (WindowsApiTool.KBDLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(WindowsApiTool.KBDLLHOOKSTRUCT));
+            var keyCode = (int)key.vkCode;
+
             switch ((int)wParam)
             {
                 // キーを押したとき
                 case WindowsApiTool.WM_KEYDOWN:
-                    onKeyDown?.Invoke((int)key.vkCode);
+                    onKeyDown?.Invoke(keyCode);
                     break;
 
                 // キーを離したとき
                 case WindowsApiTool.WM_KEYUP:
-                    onKeyUp?.Invoke((int)key.vkCode);
+                    onKeyUp?.Invoke(keyCode);
                     break;
             }
+
+            if (isBlocking)
+            {
+                return new IntPtr(1);
+            }
+
             return WindowsApiTool.CallNextHookEx(hookId, nCode, wParam, lParam);
         }
     }

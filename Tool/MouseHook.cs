@@ -22,12 +22,12 @@ namespace DesktopLine.Tool
         /// <summary>
         /// マウスを押したら呼ばれる
         /// </summary>
-        public Action onMouseDown;
+        public Action onMouseDown = null;
 
         /// <summary>
         /// マウスを離したら呼ばれる
         /// </summary>
-        public Action onMouseUp;
+        public Action onMouseUp = null;
 
         public MouseHook()
         {
@@ -40,14 +40,20 @@ namespace DesktopLine.Tool
         /// </summary>
         public void UnhookWindowsHookEx() => WindowsApiTool.UnhookWindowsHookEx(hookId);
 
+        /// <summary>
+        /// マウスのイベントがここで補足される
+        /// </summary>
         private IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam)
         {
             var mouseHookStruct = (WindowsApiTool.MSLLHOOKSTRUCT)Marshal.PtrToStructure(lParam, typeof(WindowsApiTool.MSLLHOOKSTRUCT));
             switch ((int)wParam)
             {
+                // マウスを押したら
                 case WindowsApiTool.WM_LBUTTONDOWN:
                     onMouseDown?.Invoke();
                     break;
+
+                // マウスを離したら
                 case WindowsApiTool.WM_LBUTTONUP:
                     onMouseUp?.Invoke();
                     break;
