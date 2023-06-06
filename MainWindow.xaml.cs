@@ -42,6 +42,7 @@ namespace DesktopLine
             WindowTool.SetWindowSize(this, 500, 800);
             WindowTool.SetWindowTopMost(this);
             WindowTool.AsyncHide(this);
+            WindowTool.SetCenterWindowPos(this);
 
             // アクリル素材（マイカは Win11 以降？）を適用する
             wsdqHelper = new WindowsSystemDispatcherQueueHelper();

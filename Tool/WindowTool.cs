@@ -2,7 +2,7 @@
 using Microsoft.UI;
 using Windows.Graphics;
 using Microsoft.UI.Windowing;
-using Microsoft.UI.Dispatching;
+using WinRT.Interop;
 
 namespace DesktopLine.Tool
 {
@@ -48,5 +48,23 @@ namespace DesktopLine.Tool
         {
             window.DispatcherQueue.TryEnqueue(() => GetAppWindow(window).Hide());
         }
+
+        /// <summary>
+        ///ウィンドウを真ん中に移動する
+        /// </summary>
+        /// <param name="window"></param>
+        public static void SetCenterWindowPos(Window window)
+        {
+            var hWnd = WindowNative.GetWindowHandle(window);
+            var windowId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
+            var displayArea = DisplayArea.GetFromWindowId(windowId, DisplayAreaFallback.Nearest);
+            // 真ん中にする
+            var CenteredPosition = appWindow.Position;
+            CenteredPosition.X = (displayArea.WorkArea.Width - appWindow.Size.Width) / 2;
+            CenteredPosition.Y = (displayArea.WorkArea.Height - appWindow.Size.Height) / 2;
+            appWindow.Move(CenteredPosition);
+        }
+
     }
 }
