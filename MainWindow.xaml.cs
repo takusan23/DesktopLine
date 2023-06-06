@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -20,6 +19,9 @@ namespace DesktopLine
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        // Windowsキーを長押しする時間
+        private readonly int WINDOWS_KEY_HOOK_LONG_PRESS_MS = 500;
+
         // TODO Win11 のみになったらアクリルの後継の Mica が使えるはず
         WindowsSystemDispatcherQueueHelper wsdqHelper;
         Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController acrylicController;
@@ -28,7 +30,7 @@ namespace DesktopLine
         /// <summary>
         /// キーボードの入力をフックする
         /// </summary>
-        KeybordHook keybordHook = null;
+        KeybordHookTool keybordHook = null;
 
         /// <summary>
         /// 現在のマウス座標
@@ -57,7 +59,7 @@ namespace DesktopLine
 
             // Hook
             keybordHook = new();
-            setupHook();
+            SetupHook();
 
             // マウス操作移動時のイベント
             layoutRoot.PointerPressed += LayoutRoot_PointerPressed;
@@ -68,42 +70,56 @@ namespace DesktopLine
         /// <summary>
         /// SetWindowsHookEx でフックしたイベントを処理する
         /// </summary>
-        private void setupHook()
+        private void SetupHook()
         {
             var appWindow = WindowTool.GetAppWindow(this);
 
-            // Windowsキーを押した時間
-            DateTime? startDownTime = null;
+            // Windowsキーを最初に押した時間、押している時間。
+            DateTime? startKeyDownTime = null;
+            DateTime? currentKeyDownTime = null;
 
-            keybordHook.onKeyDown += (int keycode) =>
+            // キーを押したら呼ばれる
+            keybordHook.onKeybordHookEvent = (keyState, keyCode) =>
             {
-                // Windowsキーを押しているか
-                if (keycode == WindowsApiTool.VK_LWIN)
+                // Windowsキー の時だけ
+                if (keyCode == WindowsApiTool.VK_LWIN)
                 {
-                    if (startDownTime == null)
+                    switch (keyState)
                     {
-                        startDownTime = DateTime.Now;
+                        // キーを押している間呼ばれる
+                        case KeybordHookTool.KeyState.DOWN:
+                            currentKeyDownTime = DateTime.Now;
+                            if (startKeyDownTime == null)
+                            {
+                                startKeyDownTime = DateTime.Now;
+                            }
+                            // 比較して超えていたら DesktopLine 呼び出す
+                            if ((currentKeyDownTime.Value - startKeyDownTime.Value).TotalMilliseconds >= WINDOWS_KEY_HOOK_LONG_PRESS_MS)
+                            {
+                                // 表示されていない場合は出す
+                                if (!appWindow.IsVisible)
+                                {
+                                    appWindow.Show();
+                                }
+                            }
+                            break;
+
+                        // キーを離したら呼ばれる
+                        case KeybordHookTool.KeyState.UP:
+                            if ((currentKeyDownTime.Value - startKeyDownTime.Value).TotalMilliseconds <= WINDOWS_KEY_HOOK_LONG_PRESS_MS)
+                            {
+                                // もし超えていなかったら大人しく Windowsキー を押す
+                                ShortcutInputTool.SendWindowsKeyEvent();
+                            }
+                            // 次押した際のためにリセット
+                            appWindow.Hide();
+                            currentKeyDownTime = null;
+                            startKeyDownTime = null;
+                            break;
                     }
-                    // 500ms 経ったら
-                    if ((DateTime.Now - startDownTime.Value).TotalMilliseconds >= 500)
-                    {
-                        // 表示されていない場合は出す
-                        if (!appWindow.IsVisible)
-                        {
-                            appWindow.Show();
-                        }
-                    }
+                    return true;
                 }
-            };
-            keybordHook.onKeyUp += (int keycode) =>
-            {
-                var isShow = appWindow.IsVisible;
-                // 離したら閉じる
-                if (keycode == WindowsApiTool.VK_LWIN)
-                {
-                    startDownTime = null;
-                    appWindow.Hide();
-                }
+                return false;
             };
         }
 
@@ -205,18 +221,20 @@ namespace DesktopLine
         /// <summary>
         /// クリックが離れたら呼ばれる
         /// </summary>
-        private async void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
             var point = e.GetCurrentPoint(layoutRoot);
             if (startPosition.Value.X < point.Position.X)
             {
                 // 開始位置より右側
-                VirtualDesktopSwitcher.sendSwitchKeyEvent(VirtualDesktopSwitcher.Direction.Right);
+                ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Right);
+                Debug.WriteLine("[VirtualDesktop Switch] Right");
             }
             else
             {
                 // 開始位置より左側
-                VirtualDesktopSwitcher.sendSwitchKeyEvent(VirtualDesktopSwitcher.Direction.Left);
+                ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Left);
+                Debug.WriteLine("[VirtualDesktop Switch] Left");
             }
             // 描いた内容を消す
             layoutRoot.Children.Clear();
