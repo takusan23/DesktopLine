@@ -2,6 +2,7 @@
 using Microsoft.UI;
 using Windows.Graphics;
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Dispatching;
 
 namespace DesktopLine.Tool
 {
@@ -37,6 +38,15 @@ namespace DesktopLine.Tool
         {
             var hWnd = WinRT.Interop.WindowNative.GetWindowHandle(window);
             WindowsApiTool.SetWindowPos(hWnd, WindowsApiTool.HWND_TOPMOST, 0, 0, 0, 0, WindowsApiTool.SWP_NOMOVE | WindowsApiTool.SWP_NOSIZE);
+        }
+
+        /// <summary>
+        /// UIスレッドで Window#Hide を呼び出す
+        /// </summary>
+        /// <param name="window"></param>
+        public static void AsyncHide(Window window)
+        {
+            window.DispatcherQueue.TryEnqueue(() => GetAppWindow(window).Hide());
         }
     }
 }
