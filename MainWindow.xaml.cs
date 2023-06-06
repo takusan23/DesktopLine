@@ -32,16 +32,6 @@ namespace DesktopLine
         /// </summary>
         KeybordHookTool keybordHook = null;
 
-        /// <summary>
-        /// 現在のマウス座標
-        /// </summary>
-        Windows.Foundation.Point? currentPosition = null;
-
-        /// <summary>
-        /// 最初のマウス座標
-        /// </summary>
-        Windows.Foundation.Point? startPosition = null;
-
         public MainWindow()
         {
             InitializeComponent();
@@ -62,9 +52,7 @@ namespace DesktopLine
             SetupHook();
 
             // マウス操作移動時のイベント
-            layoutRoot.PointerPressed += LayoutRoot_PointerPressed;
-            layoutRoot.PointerMoved += LayoutRoot_PointerMoved;
-            layoutRoot.PointerReleased += LayoutRoot_PointerReleased;
+            SetupCanvas();
         }
 
         /// <summary>
@@ -73,9 +61,9 @@ namespace DesktopLine
         private void SetupHook()
         {
             var appWindow = WindowTool.GetAppWindow(this);
-
-            // Windowsキーを最初に押した時間、押している時間。
+            // Windowsキーを最初に押した時間
             DateTime? startKeyDownTime = null;
+            // Windowsキーを押している時間
             DateTime? currentKeyDownTime = null;
 
             // キーを押したら呼ばれる
@@ -120,6 +108,68 @@ namespace DesktopLine
                     return true;
                 }
                 return false;
+            };
+        }
+
+        /// <summary>
+        /// マウスで Win3 UI Canvas に線を描く処理
+        /// </summary>
+        private void SetupCanvas()
+        {
+            // 最初のマウス座標
+            Windows.Foundation.Point? startPosition = null;
+            // 現在のマウス座標
+            Windows.Foundation.Point? currentPosition = null;
+
+            // クリックを押したら呼ばれる
+            layoutRoot.PointerPressed += (sender, e) =>
+            {
+                var point = e.GetCurrentPoint(layoutRoot);
+                var position = point.Position;
+                startPosition = position;
+            };
+
+            // クリックを押してる間呼ばれる
+            layoutRoot.PointerMoved += (sender, e) =>
+            {
+                // 線を描画する
+                var point = e.GetCurrentPoint(layoutRoot);
+                var position = point.Position;
+                if (point.Properties.IsLeftButtonPressed && currentPosition != null)
+                {
+                    var line = new Line()
+                    {
+                        X1 = currentPosition.Value.X,
+                        Y1 = currentPosition.Value.Y,
+                        X2 = position.X,
+                        Y2 = position.Y,
+                        StrokeThickness = 4,
+                        Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(0xFF, 0x00, 0x00, 0x00))
+                    };
+
+                    layoutRoot.Children.Add(line);
+                }
+                currentPosition = position;
+            };
+
+            // クリックを離したら呼ばれる
+            layoutRoot.PointerReleased += (sender, e) =>
+            {
+                var point = e.GetCurrentPoint(layoutRoot);
+                if (startPosition.Value.X < point.Position.X)
+                {
+                    // 開始位置より右側
+                    ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Right);
+                    Debug.WriteLine("[VirtualDesktop Switch] Right");
+                }
+                else
+                {
+                    // 開始位置より左側
+                    ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Left);
+                    Debug.WriteLine("[VirtualDesktop Switch] Left");
+                }
+                // 描いた内容を消す
+                layoutRoot.Children.Clear();
             };
         }
 
@@ -181,63 +231,6 @@ namespace DesktopLine
             configurationSource = null;
 
             keybordHook.UnhookWindowsHookEx();
-        }
-
-        /// <summary>
-        /// クリックを押したら呼ばれる
-        /// </summary>
-        private void LayoutRoot_PointerPressed(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            var point = e.GetCurrentPoint(layoutRoot);
-            var position = point.Position;
-            startPosition = position;
-        }
-
-        /// <summary>
-        /// クリックを押し続けている間呼ばれる
-        /// </summary>
-        private void LayoutRoot_PointerMoved(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            // 線を描画する
-            var point = e.GetCurrentPoint(layoutRoot);
-            var position = point.Position;
-            if (point.Properties.IsLeftButtonPressed && currentPosition != null)
-            {
-                var line = new Line()
-                {
-                    X1 = currentPosition.Value.X,
-                    Y1 = currentPosition.Value.Y,
-                    X2 = position.X,
-                    Y2 = position.Y,
-                    StrokeThickness = 4,
-                    Stroke = new SolidColorBrush(Windows.UI.Color.FromArgb(0xFF, 0x00, 0x00, 0x00))
-                };
-
-                layoutRoot.Children.Add(line);
-            }
-            currentPosition = position;
-        }
-
-        /// <summary>
-        /// クリックが離れたら呼ばれる
-        /// </summary>
-        private void LayoutRoot_PointerReleased(object sender, Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e)
-        {
-            var point = e.GetCurrentPoint(layoutRoot);
-            if (startPosition.Value.X < point.Position.X)
-            {
-                // 開始位置より右側
-                ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Right);
-                Debug.WriteLine("[VirtualDesktop Switch] Right");
-            }
-            else
-            {
-                // 開始位置より左側
-                ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Left);
-                Debug.WriteLine("[VirtualDesktop Switch] Left");
-            }
-            // 描いた内容を消す
-            layoutRoot.Children.Clear();
         }
 
     }
