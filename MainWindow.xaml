@@ -34,6 +34,7 @@
         <!-- タスクトレイのアイコン -->
         <tb:TaskbarIcon
             ToolTipText="DesktopLine"            
+            IconSource="/Resources/desktop_line_tasktray_icon.ico"
             MenuActivation="LeftOrRightClick">
             <tb:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
