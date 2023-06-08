@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesktopLine", "DesktopLine.csproj", "{2D5DD35B-4A8C-4B82-8678-589C8A8B2E7D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DesktopLine", "DesktopLine.csproj", "{2D5DD35B-4A8C-4B82-8678-589C8A8B2E7D}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "DesktopLineInstaller", "DesktopLineInstaller\DesktopLineInstaller.vdproj", "{4E4379ED-3266-463F-A084-FD3D00C493CC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,12 @@ Global
 		{2D5DD35B-4A8C-4B82-8678-589C8A8B2E7D}.Release|x86.ActiveCfg = Release|x86
 		{2D5DD35B-4A8C-4B82-8678-589C8A8B2E7D}.Release|x86.Build.0 = Release|x86
 		{2D5DD35B-4A8C-4B82-8678-589C8A8B2E7D}.Release|x86.Deploy.0 = Release|x86
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Debug|arm64.ActiveCfg = Debug
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Debug|x64.ActiveCfg = Debug
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Debug|x86.ActiveCfg = Debug
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Release|arm64.ActiveCfg = Release
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Release|x64.ActiveCfg = Release
+		{4E4379ED-3266-463F-A084-FD3D00C493CC}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
