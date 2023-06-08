@@ -41,7 +41,7 @@ namespace DesktopLine.Tool
         }
 
         /// <summary>
-        /// UIスレッドで Window#Hide を呼び出す
+        /// UIスレッドで AppWindow#Hide を呼び出す
         /// </summary>
         /// <param name="window"></param>
         public static void AsyncHide(Window window)

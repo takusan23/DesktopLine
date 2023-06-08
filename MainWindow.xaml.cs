@@ -2,6 +2,7 @@
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
 using DesktopLine.Tool;
+using H.NotifyIcon;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
@@ -87,6 +88,7 @@ namespace DesktopLine
                             if ((currentKeyDownTime.Value - startKeyDownTime.Value).TotalMilliseconds >= WINDOWS_KEY_HOOK_LONG_PRESS_MS)
                             {
                                 // 表示されていない場合は出す
+                                // 仮想デスクトップ切替時は切り替えたあとのデスクトップで表示されるよう
                                 if (!appWindow.IsVisible)
                                 {
                                     appWindow.Show();
@@ -234,6 +236,16 @@ namespace DesktopLine
 
             keybordHook.UnhookWindowsHookEx();
         }
+
+        /// <summary>
+        /// タスクトレイの終了を押したら呼ばれる
+        /// </summary>
+        private void TaskTrayIconItemClose_Click(Microsoft.UI.Xaml.Input.XamlUICommand sender, Microsoft.UI.Xaml.Input.ExecuteRequestedEventArgs args) => Close();
+
+        /// <summary>
+        /// タスクトレイのGitHubを押したら呼ばれる
+        /// </summary>
+        private void TaskTrayIconItemGitHub_Click(Microsoft.UI.Xaml.Input.XamlUICommand sender, Microsoft.UI.Xaml.Input.ExecuteRequestedEventArgs args) => OpenGitHubTool.OpenGitHubWebPage();
 
     }
 }

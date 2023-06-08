@@ -5,9 +5,9 @@
     x:Class="DesktopLine.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:DesktopLine"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:tb="using:H.NotifyIcon"
     mc:Ignorable="d">
 
     <Grid>
@@ -15,8 +15,33 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
+        <Grid.Resources>
+            <XamlUICommand 
+                x:Key="OpenGitHubCommand"
+                ExecuteRequested="TaskTrayIconItemGitHub_Click"
+                Label="GitHubを開く"/>
+            <XamlUICommand 
+                x:Key="CloseCommand"
+                ExecuteRequested="TaskTrayIconItemClose_Click"
+                Label="終了する"/>
+        </Grid.Resources>
+
+        <!-- 線を描くウィンドウ -->
         <Grid Grid.Row="0">
             <Grid Name="layoutRoot" Background="Transparent" />
         </Grid>
+
+        <!-- タスクトレイのアイコン -->
+        <tb:TaskbarIcon
+            ToolTipText="DesktopLine"            
+            MenuActivation="LeftOrRightClick">
+            <tb:TaskbarIcon.ContextFlyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Command="{StaticResource OpenGitHubCommand}" />
+                    <MenuFlyoutItem Command="{StaticResource CloseCommand}"/>
+                </MenuFlyout>
+            </tb:TaskbarIcon.ContextFlyout>
+        </tb:TaskbarIcon>
+
     </Grid>
 </Window>
