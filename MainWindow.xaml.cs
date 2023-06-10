@@ -156,18 +156,21 @@ namespace DesktopLine
             };
 
             // クリックを離したら呼ばれる
+            // スマホのスワイプで画面を切り替えるのと同じ感じの操作
             layoutRoot.PointerReleased += (sender, e) =>
             {
                 var point = e.GetCurrentPoint(layoutRoot);
-                if (startPosition.Value.X < point.Position.X)
+                if (startPosition.Value.X > point.Position.X)
                 {
-                    // 開始位置より右側
+                    // 開始位置より左側
+                    // 左から仮想デスクトップを移動させてくる イメージ
                     ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Right);
                     Debug.WriteLine("[VirtualDesktop Switch] Right");
                 }
                 else
                 {
-                    // 開始位置より左側
+                    // 開始位置より右側
+                    // 右から仮想デスクトップを移動させてくる イメージ
                     ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Left);
                     Debug.WriteLine("[VirtualDesktop Switch] Left");
                 }
