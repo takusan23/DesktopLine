@@ -81,7 +81,7 @@ namespace DesktopLine.Tool
 
         public const int KEYEVENTF_EXTENDEDKEY = 0x1;
 
-        public const int VK_CONTROL = 0x11;
+        public const int VK_LCONTROL = 0xA2;
 
         public const int VK_LWIN = 0x5B;
 

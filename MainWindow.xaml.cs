@@ -5,8 +5,8 @@ using DesktopLine.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
-using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -19,9 +19,6 @@ namespace DesktopLine
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        // Windowsキーを長押しする時間
-        private readonly int WINDOWS_KEY_HOOK_LONG_PRESS_MS = 500;
-
         // TODO Win11 のみになったらアクリルの後継の Mica が使えるはず
         WindowsSystemDispatcherQueueHelper wsdqHelper;
         Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController acrylicController;
@@ -63,52 +60,53 @@ namespace DesktopLine
         private void SetupHook()
         {
             var appWindow = WindowTool.GetAppWindow(this);
-            // Windowsキーを最初に押した時間
-            DateTime? startKeyDownTime = null;
-            // Windowsキーを押している時間
-            DateTime? currentKeyDownTime = null;
+            // 左のCtrlキーを押しているか
+            var isCtrlKeyDown = false;
+            // Windowsキーを押しているか
+            var isWindowsKeyDown = false;
 
             // キーを押したら呼ばれる
             keybordHook.onKeybordHookEvent = (keyState, keyCode) =>
             {
-                // Windowsキー の時だけ
-                if (keyCode == WindowsApiTool.VK_LWIN)
+                Debug.WriteLine($"onKeybordHookEvent {keyState} = {keyCode}");
+                switch (keyState)
                 {
-                    switch (keyState)
-                    {
-                        // キーを押している間呼ばれる
-                        case KeybordHookTool.KeyState.DOWN:
-                            currentKeyDownTime = DateTime.Now;
-                            if (startKeyDownTime == null)
+                    // キーを押している
+                    case KeybordHookTool.KeyState.DOWN:
+                        if (keyCode == WindowsApiTool.VK_LCONTROL)
+                        {
+                            isCtrlKeyDown = true;
+                        }
+                        if (keyCode == WindowsApiTool.VK_LWIN)
+                        {
+                            isWindowsKeyDown = true;
+                        }
+                        // 両方とも押していれば出す
+                        if (isCtrlKeyDown && isWindowsKeyDown)
+                        {
+                            // 仮想デスクトップ切替時は切り替えたあとのデスクトップで表示されるよう
+                            if (!appWindow.IsVisible)
                             {
-                                startKeyDownTime = DateTime.Now;
+                                appWindow.Show();
                             }
-                            // 比較して超えていたら DesktopLine 呼び出す
-                            if ((currentKeyDownTime.Value - startKeyDownTime.Value).TotalMilliseconds >= WINDOWS_KEY_HOOK_LONG_PRESS_MS)
-                            {
-                                // 表示されていない場合は出す
-                                // 仮想デスクトップ切替時は切り替えたあとのデスクトップで表示されるよう
-                                if (!appWindow.IsVisible)
-                                {
-                                    appWindow.Show();
-                                }
-                            }
-                            break;
-
-                        // キーを離したら呼ばれる
-                        case KeybordHookTool.KeyState.UP:
-                            if ((currentKeyDownTime.Value - startKeyDownTime.Value).TotalMilliseconds <= WINDOWS_KEY_HOOK_LONG_PRESS_MS)
-                            {
-                                // もし超えていなかったら大人しく Windowsキー を押す
-                                ShortcutInputTool.SendWindowsKeyEvent();
-                            }
-                            // 次押した際のためにリセット
+                        }
+                        break;
+                    // キーを離した
+                    case KeybordHookTool.KeyState.UP:
+                        if (keyCode == WindowsApiTool.VK_LCONTROL)
+                        {
+                            isCtrlKeyDown = false;
+                        }
+                        if (keyCode == WindowsApiTool.VK_LWIN)
+                        {
+                            isWindowsKeyDown = false;
+                        }
+                        // もし表示中なら消す
+                        if (appWindow.IsVisible)
+                        {
                             appWindow.Hide();
-                            currentKeyDownTime = null;
-                            startKeyDownTime = null;
-                            break;
-                    }
-                    return true;
+                        }
+                        break;
                 }
                 return false;
             };
