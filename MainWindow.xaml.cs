@@ -155,6 +155,7 @@ namespace DesktopLine
 
             // クリックを離したら呼ばれる
             // スマホのスワイプで画面を切り替えるのと同じ感じの操作
+            // 仮想デスクトップ切り替えは Win+Ctrl+矢印キー ですが、すでに Win+Ctrl は押している状態（DesktopLine 表示中）なので、矢印キーを押すだけ
             layoutRoot.PointerReleased += (sender, e) =>
             {
                 var point = e.GetCurrentPoint(layoutRoot);
@@ -162,14 +163,14 @@ namespace DesktopLine
                 {
                     // 開始位置より左側
                     // 左から仮想デスクトップを移動させてくる イメージ
-                    ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Right);
+                    ShortcutInputTool.SendArrowKeyInput(ShortcutInputTool.Direction.Right);
                     Debug.WriteLine("[VirtualDesktop Switch] Right");
                 }
                 else
                 {
                     // 開始位置より右側
                     // 右から仮想デスクトップを移動させてくる イメージ
-                    ShortcutInputTool.SendSwitchKeyEvent(ShortcutInputTool.Direction.Left);
+                    ShortcutInputTool.SendArrowKeyInput(ShortcutInputTool.Direction.Left);
                     Debug.WriteLine("[VirtualDesktop Switch] Left");
                 }
                 // 描いた内容を消す

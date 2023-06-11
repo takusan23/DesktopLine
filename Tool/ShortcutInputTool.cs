@@ -18,13 +18,13 @@ namespace DesktopLine.Tool
         public static IntPtr SNED_INPUT_EXTRA_INFO = new(0607); // 2023/06/07
 
         /// <summary>
-        /// 仮想デスクトップ切り替えのショートカットキーを押す
+        /// 矢印キーを押す
         /// </summary>
         /// <param name="direction">方向。矢印キー</param>
-        public static void SendSwitchKeyEvent(Direction direction)
+        public static void SendArrowKeyInput(Direction direction)
         {
             short keyCode = (short)(direction == Direction.Left ? WindowsApiTool.VK_LEFT : WindowsApiTool.VK_RIGHT);
-            SendMultipleKeyInput(WindowsApiTool.VK_LCONTROL, WindowsApiTool.VK_LWIN, keyCode);
+            SendMultipleKeyInput(keyCode);
         }
 
         /// <summary>

@@ -12,7 +12,8 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="AUTO"/>
         </Grid.RowDefinitions>
 
         <Grid.Resources>
@@ -27,9 +28,8 @@
         </Grid.Resources>
 
         <!-- 線を描くウィンドウ -->
-        <Grid Grid.Row="0">
-            <Grid Name="layoutRoot" Background="Transparent" />
-        </Grid>
+        <Grid Name="layoutRoot" Grid.Row="0" Background="Transparent" />
+        <TextBlock Grid.Row="1" TextAlignment="Center" Padding="0,0,0,10" Text="Ctrl + Windowsキー + 矢印キー でも移動可能" />
 
         <!-- タスクトレイのアイコン -->
         <tb:TaskbarIcon
