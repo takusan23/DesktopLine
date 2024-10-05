@@ -43,6 +43,22 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+                "Items"
+                {
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
+                    {
+                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
+                    }
+                }
+            }
         }
         "Release"
         {
@@ -59,6 +75,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
     }
     "Deployable"
@@ -166,15 +190,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:DesktopLine"
-        "ProductCode" = "8:{32B9FAAB-9B77-4ACF-ABD5-33A1FD23B737}"
-        "PackageCode" = "8:{0741F441-782D-4DF7-A667-79817AF359E6}"
+        "ProductCode" = "8:{AEA95678-FF55-411F-A7EB-46744094AAC1}"
+        "PackageCode" = "8:{69D23F9F-0604-4E6A-921F-9FEBD3E8E9C6}"
         "UpgradeCode" = "8:{34C97A4F-9B4D-452C-870E-F8886695C8B8}"
         "AspNetVersion" = "8:2.0.50727.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.0"
+        "ProductVersion" = "8:1.1.0"
         "Manufacturer" = "8:takusan_23"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
@@ -702,7 +726,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_E2D90A32AD134A51BBEA6DB3791F9C4E"
             {
-            "SourcePath" = "8:..\\obj\\x64\\Release\\net6.0-windows10.0.19041.0\\win10-x64\\apphost.exe"
+            "SourcePath" = "8:..\\obj\\x64\\Debug\\net8.0-windows10.0.19041.0\\win-x64\\apphost.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_98D824AFD219429BBF157759D390415F"

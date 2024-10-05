@@ -14,6 +14,7 @@
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<WindowsPackageType>None</WindowsPackageType>
 		<WindowsSdkPackageVersion>10.0.19041.38</WindowsSdkPackageVersion>
+		<VersionPrefix>1.1.0</VersionPrefix>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Resources\desktop_line_icon.ico" />
