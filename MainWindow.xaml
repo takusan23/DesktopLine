@@ -18,6 +18,10 @@
 
         <Grid.Resources>
             <XamlUICommand 
+                x:Key="RegisterStartupCommand"
+                ExecuteRequested="TaskTrayIconItemRegisterStartup_Click"
+                Label="スタートアップに登録、解除する"/>
+            <XamlUICommand 
                 x:Key="OpenGitHubCommand"
                 ExecuteRequested="TaskTrayIconItemGitHub_Click"
                 Label="GitHubを開く"/>
@@ -38,6 +42,7 @@
             MenuActivation="LeftOrRightClick">
             <tb:TaskbarIcon.ContextFlyout>
                 <MenuFlyout>
+                    <MenuFlyoutItem Command="{StaticResource RegisterStartupCommand}" />
                     <MenuFlyoutItem Command="{StaticResource OpenGitHubCommand}" />
                     <MenuFlyoutItem Command="{StaticResource CloseCommand}"/>
                 </MenuFlyout>

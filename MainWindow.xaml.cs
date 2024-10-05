@@ -3,6 +3,7 @@
 
 using DesktopLine.Tool;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using System;
@@ -267,5 +268,38 @@ namespace DesktopLine
         /// </summary>
         private void TaskTrayIconItemGitHub_Click(Microsoft.UI.Xaml.Input.XamlUICommand sender, Microsoft.UI.Xaml.Input.ExecuteRequestedEventArgs args) => OpenGitHubTool.OpenGitHubWebPage();
 
+        private async void TaskTrayIconItemRegisterStartup_Click(Microsoft.UI.Xaml.Input.XamlUICommand sender, Microsoft.UI.Xaml.Input.ExecuteRequestedEventArgs args)
+        {
+            // ダイアログ表示のため、一時的に Show
+            var appWindow = WindowTool.GetAppWindow(this);
+            appWindow.Show();
+
+            // スタートアップに登録、もしくは解除
+            bool isRegisterStartup;
+            if (!StartupTool.IsRegisterStartup())
+            {
+                StartupTool.RegisterStartup();
+                isRegisterStartup = true;
+            }
+            else
+            {
+                StartupTool.UnRegisterStartup();
+                isRegisterStartup = false;
+            }
+
+            // ダイアログを出す
+            ContentDialog startupResultDialog = new ContentDialog
+            {
+                Title = "スタートアップ",
+                Content = isRegisterStartup ? "スタートアップに登録しました" : "スタートアップの登録を解除しました。",
+                CloseButtonText = "閉じる",
+                // MSDN にはないがこれが必要
+                XamlRoot = Content.XamlRoot
+            };
+            await startupResultDialog.ShowAsync();
+
+            // ウィンドウ戻す
+            appWindow.Hide();
+        }
     }
 }
