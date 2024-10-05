@@ -288,7 +288,7 @@ namespace DesktopLine
             }
 
             // ダイアログを出す
-            ContentDialog startupResultDialog = new ContentDialog
+            ContentDialog startupResultDialog = new()
             {
                 Title = "スタートアップ",
                 Content = isRegisterStartup ? "スタートアップに登録しました" : "スタートアップの登録を解除しました。",
