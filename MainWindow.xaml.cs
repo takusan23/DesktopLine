@@ -5,8 +5,8 @@ using DesktopLine.Tool;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
+using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using WinRT;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -28,6 +28,11 @@ namespace DesktopLine
         /// キーボードの入力をフックする
         /// </summary>
         KeybordHookTool keybordHook = null;
+
+        /// <summary>
+        /// 1 秒を表す ticks。1ms が TimeSpan.TicksPerMillisecond なので、1000 かけて 1sec。
+        /// </summary>
+        const long ONE_SECONDS_TICKS = TimeSpan.TicksPerMillisecond * 1_000;
 
         public MainWindow()
         {
@@ -64,6 +69,9 @@ namespace DesktopLine
             var isCtrlKeyDown = false;
             // Windowsキーを押しているか
             var isWindowsKeyDown = false;
+            // それぞれのキーを押した時の時間。単位は Tick で、1ms が 10_000 ticks になる。
+            var ctrlKeyDownTime = 0L;
+            var windowsKeyDownTime = 0L;
 
             // キーを押したら呼ばれる
             keybordHook.onKeybordHookEvent = (keyState, keyCode) =>
@@ -76,10 +84,19 @@ namespace DesktopLine
                         if (keyCode == WindowsApiTool.VK_LCONTROL)
                         {
                             isCtrlKeyDown = true;
+                            ctrlKeyDownTime = DateTime.Now.Ticks;
                         }
                         if (keyCode == WindowsApiTool.VK_LWIN)
                         {
                             isWindowsKeyDown = true;
+                            windowsKeyDownTime = DateTime.Now.Ticks;
+                        }
+                        // パソコンが高負荷状態だと、キーを押して無いのに表示されたりするため、
+                        // キーを押した時間がかけ離れていないことを確認。かけ離れている場合は押してないことにする。
+                        if (ONE_SECONDS_TICKS < Math.Abs(ctrlKeyDownTime - ctrlKeyDownTime))
+                        {
+                            isCtrlKeyDown = false;
+                            isWindowsKeyDown = false;
                         }
                         // 両方とも押していれば出す
                         if (isCtrlKeyDown && isWindowsKeyDown)
@@ -96,10 +113,12 @@ namespace DesktopLine
                         if (keyCode == WindowsApiTool.VK_LCONTROL)
                         {
                             isCtrlKeyDown = false;
+                            ctrlKeyDownTime = 0;
                         }
                         if (keyCode == WindowsApiTool.VK_LWIN)
                         {
                             isWindowsKeyDown = false;
+                            windowsKeyDownTime = 0;
                         }
                         // もし表示中なら消す
                         if (appWindow.IsVisible)
