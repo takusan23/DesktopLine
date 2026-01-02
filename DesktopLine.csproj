@@ -44,9 +44,13 @@
 		</Content>
 	</ItemGroup>
 	<ItemGroup>
+		<!-- https://github.com/microsoft/WindowsAppSDK/issues/6015 -->
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250108002">
+			<ExcludeAssets>all</ExcludeAssets>
+		</PackageReference>
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.4.1" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
+		<PackageReference Include="Microsoft.WindowsAppSDK.WinUI" Version="1.8.251105000" />
 		<PackageReference Include="System.Resources.Extensions" Version="10.0.1" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
