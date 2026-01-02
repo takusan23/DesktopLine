@@ -20,9 +20,8 @@ namespace DesktopLine
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        // TODO Win11 のみになったらアクリルの後継の Mica が使えるはず
         WindowsSystemDispatcherQueueHelper wsdqHelper;
-        Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController acrylicController;
+        Microsoft.UI.Composition.SystemBackdrops.MicaController micaController;
         Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration configurationSource;
 
         /// <summary>
@@ -47,7 +46,7 @@ namespace DesktopLine
             WindowTool.AsyncHide(this);
             WindowTool.SetCenterWindowPos(this);
 
-            // アクリル素材（マイカは Win11 以降？）を適用する
+            // マイカを適用する
             wsdqHelper = new WindowsSystemDispatcherQueueHelper();
             wsdqHelper.EnsureWindowsSystemDispatcherQueueController();
             SetBackdrop();
@@ -200,22 +199,21 @@ namespace DesktopLine
 
         private void SetBackdrop()
         {
-            if (acrylicController != null)
+            if (micaController != null)
             {
-                acrylicController.Dispose();
-                acrylicController = null;
+                micaController.Dispose();
+                micaController = null;
             }
             configurationSource = null;
-            TrySetAcrylicBackdrop();
+
+            TrySetMicaBackdrop();
         }
 
-        private bool TrySetAcrylicBackdrop()
+        private bool TrySetMicaBackdrop()
         {
-            if (Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController.IsSupported())
+            if (Microsoft.UI.Composition.SystemBackdrops.MicaController.IsSupported())
             {
                 configurationSource = new Microsoft.UI.Composition.SystemBackdrops.SystemBackdropConfiguration();
-                this.Activated += Window_Activated;
-                this.Closed += Window_Closed;
 
                 configurationSource.IsInputActive = true;
                 switch (((FrameworkElement)this.Content).ActualTheme)
@@ -225,16 +223,10 @@ namespace DesktopLine
                     case ElementTheme.Default: configurationSource.Theme = Microsoft.UI.Composition.SystemBackdrops.SystemBackdropTheme.Default; break;
                 }
 
-                acrylicController = new Microsoft.UI.Composition.SystemBackdrops.DesktopAcrylicController
-                {
-                    TintColor = new Windows.UI.Color() { A = 255, R = 32, G = 128, B = 64 },
-                    TintOpacity = 0.25f,
-                    LuminosityOpacity = 0.4f,
-                    FallbackColor = new Windows.UI.Color() { A = 255, R = 16, G = 16, B = 64 }
-                };
+                micaController = new Microsoft.UI.Composition.SystemBackdrops.MicaController();
 
-                acrylicController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
-                acrylicController.SetSystemBackdropConfiguration(configurationSource);
+                micaController.AddSystemBackdropTarget(this.As<Microsoft.UI.Composition.ICompositionSupportsSystemBackdrop>());
+                micaController.SetSystemBackdropConfiguration(configurationSource);
                 return true;
             }
             return false;
@@ -247,10 +239,10 @@ namespace DesktopLine
 
         private void Window_Closed(object sender, WindowEventArgs args)
         {
-            if (acrylicController != null)
+            if (micaController != null)
             {
-                acrylicController.Dispose();
-                acrylicController = null;
+                micaController.Dispose();
+                micaController = null;
             }
             this.Activated -= Window_Activated;
             configurationSource = null;

@@ -13,7 +13,7 @@
 		<ApplicationIcon>Resources\desktop_line_icon.ico</ApplicationIcon>
 		<WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
 		<WindowsPackageType>None</WindowsPackageType>
-		<VersionPrefix>1.1.0</VersionPrefix>
+		<VersionPrefix>2.0.0</VersionPrefix>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Remove="Resources\desktop_line_icon.ico" />
